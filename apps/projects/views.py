@@ -9,6 +9,9 @@ from .permissions import ProjectPermission, TaskPermission, CommentPermission
 
 from apps.teams.utils import log_activity
 
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
+
 
 class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
@@ -38,6 +41,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
     permission_classes = [TaskPermission]
+
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ["status", "priority"]
+    search_fields = ["title"]
 
     def get_queryset(self):
         return Task.objects.filter(
