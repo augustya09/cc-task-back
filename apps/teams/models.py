@@ -36,3 +36,19 @@ class Membership(BaseModel):
 
     def __str__(self):
         return f"{self.user.email} - {self.team.name} ({self.role})"
+    
+class ActivityLog(BaseModel):
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name="activity_logs")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="activity_logs",
+    )
+    description = models.CharField(max_length=500)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return self.description

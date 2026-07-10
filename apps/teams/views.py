@@ -5,6 +5,8 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from .utils import log_activity
+
 from .models import Team, Membership
 from .serializers import (
     TeamSerializer,
@@ -31,6 +33,7 @@ class TeamViewSet(viewsets.ModelViewSet): #knows basic CRUD operations
         Membership.objects.create(
             user=self.request.user, team=team, role=Membership.Role.OWNER #creator = owner
         )
+        log_activity(team, self.request.user, f"{self.request.user.email} created the team.")
 
     def _get_membership(self, team, user):
         return Membership.objects.filter(team=team, user=user).first()
@@ -44,6 +47,7 @@ class TeamViewSet(viewsets.ModelViewSet): #knows basic CRUD operations
                 status=status.HTTP_400_BAD_REQUEST
             )
         Membership.objects.create(team=team, user=request.user, role=Membership.Role.MEMBER)
+        log_activity(team, request.user, f"{request.user.email} joined the team.")
         return Response(
             {"success":True, "message":"joined Team."}, status=status.HTTP_201_CREATED
         )
@@ -53,6 +57,7 @@ class TeamViewSet(viewsets.ModelViewSet): #knows basic CRUD operations
     def invite(self, request, pk=None):
         team = self.get_object()
         requester_membership = self._get_membership(team, request.user)
+        log_activity(team, request.user, f"{request.user.email} invited {invited_user.email}.")
 
         if not requester_membership or requester_membership.role not in [
             Membership.Role.OWNER,
@@ -117,5 +122,15 @@ class TeamViewSet(viewsets.ModelViewSet): #knows basic CRUD operations
         serializer.is_valid(raise_exception=True)
         target_membership.role = serializer.validated_data["role"]
         target_membership.save()
+        log_activity(team, request.user, f"{request.user.email} changed {target_membership.user.email}'s role to {target_membership.role}.")
         return Response(MembershipSerializer(target_membership).data)
+    
+    @action(detail=True, methods=["get"], url_path="activity")
+    def activity(self, request, pk=None):
+        team = self.get_object()
+        logs = team.activity_logs.select_related("user").all()
+        return Response([
+            {"user": log.user.email if log.user else None, "description": log.description, "created_at": log.created_at}
+            for log in logs
+        ])
 
