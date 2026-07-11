@@ -20,6 +20,6 @@ class InviteMemberSerializer(serializers.Serializer):
     email = serializers.EmailField()
     role = serializers.ChoiceField(choices=Membership.Role.choices, default = Membership.Role.MEMBER)
 
-class ChangeRoleSerailiser(serializers.Serializer):
+class ChangeRoleSerializer(serializers.Serializer):
     role = serializers.ChoiceField(choices=Membership.Role.choices)
 
