@@ -15,13 +15,16 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
+from django.views.generic import TemplateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/v1/auth/", include("apps.authentication.urls")),
     path("api/v1/", include("apps.teams.urls")),
     path("api/v1/", include("apps.projects.urls")),
+    path("api/", include("apps.common.urls")),
 
-    path("", include("apps.common.urls")),
+    # Catch-all: serve the SPA for any non-API route
+    re_path(r'^(?!api/).*$', TemplateView.as_view(template_name='index.html'), name='spa'),
 ]

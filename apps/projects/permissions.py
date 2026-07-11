@@ -58,13 +58,19 @@ class TaskPermission(permissions.BasePermission):
         return False
     
 class CommentPermission(permissions.BasePermission):
-    #all roles can comment
+    # All roles can create and view comments.
+    # Only the comment author can edit or delete their own comment.
 
     def has_permission(self, request, view):
         return request.user and request.user.is_authenticated
-    
+
     def has_object_permission(self, request, view, obj):
         membership = Membership.objects.filter(team=obj.task.project.team, user=request.user).first()
-        return membership
+        if not membership:
+            return False
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        # Only the comment's author can edit or delete it
+        return obj.author == request.user
         
         

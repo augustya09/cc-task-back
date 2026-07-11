@@ -4,3 +4,10 @@ __pycache__/
 *.pyc
 db.sqlite3
 .DS_Store
+
+# Postman — environment.json has real credentials, never commit it
+tests/postman/environment.json
+tests/postman/report.html
+
+# Node / Newman
+node_modules/

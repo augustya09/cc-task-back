@@ -1,0 +1,13 @@
+{
+  "name": "taskflow-tests",
+  "version": "1.0.0",
+  "description": "Newman runner for TaskFlow Postman collection",
+  "scripts": {
+    "test:api": "newman run tests/postman/collection.json -e tests/postman/environment.json --bail",
+    "test:api:report": "newman run tests/postman/collection.json -e tests/postman/environment.json --reporters cli,htmlextra --reporter-htmlextra-export tests/postman/report.html"
+  },
+  "devDependencies": {
+    "newman": "^6.2.1",
+    "newman-reporter-htmlextra": "^1.23.1"
+  }
+}

@@ -1,7 +1,10 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from apps.authentication.serializers import UserSerializer
 from apps.teams.models import Membership #needed because tasks can only be assigned to people who are in the team 
 from .models import Project, Task , Comment
+
+User = get_user_model()
 
 class CommentSerializer(serializers.ModelSerializer):
     author  = UserSerializer(read_only=True) #instead of id you get the whole user object
@@ -14,7 +17,7 @@ class CommentSerializer(serializers.ModelSerializer):
 class TaskSerializer(serializers.ModelSerializer):
     assigned_to = UserSerializer(many=True, read_only=True) # a task can be assigned to multiple users, so we set many=True
     assigned_to_ids = serializers.PrimaryKeyRelatedField(
-        source="assigned_to", queryset=Membership.objects.all(), many=True, write_only=True, required=False,)
+        source="assigned_to", queryset=User.objects.all(), many=True, write_only=True, required=False,)
     created_by = UserSerializer(read_only=True)
     comments = CommentSerializer(many=True, read_only=True)
 
@@ -41,10 +44,10 @@ class TaskSerializer(serializers.ModelSerializer):
                 self.fields["assigned_to_ids"].queryset = User.objects.filter(id__in=member_ids)
 
 class ProjectSerializer(serializers.ModelSerializer):
-    task = TaskSerializer(many=True, read_only=True)
+    tasks = TaskSerializer(many=True, read_only=True)
 
     class Meta:
         model = Project
-        fields = ["id", "team", "name", "description", "task", "created_at"]
+        fields = ["id", "team", "name", "description", "tasks", "created_at"]
         read_only_fields = ["team"]
         
