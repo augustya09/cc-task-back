@@ -27,7 +27,7 @@ class Task(BaseModel):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="tasks")
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    status = models.CharField(max_length=20, choices=Priority.choices, default=Status.TODO)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.TODO)
     priority = models.CharField(max_length=20, choices=Priority.choices, default=Priority.MEDIUM)
     assigned_to = models.ManyToManyField(
         settings.AUTH_USER_MODEL, related_name="assigned_tasks", blank=True

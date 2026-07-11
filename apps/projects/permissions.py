@@ -15,7 +15,7 @@ class ProjectPermission(permissions.BasePermission):
         membership = Membership.objects.filter(team=obj.team, user=request.user).first()
         if not membership:
             return False
-        if request.meethod in permissions.SAFE_METHODS:
+        if request.method in permissions.SAFE_METHODS:
             return True
         
         return membership.role in [Membership.Role.OWNER, Membership.Role.MAINTAINER]
